@@ -1,41 +1,32 @@
-import javax.swing.*;
-import java.awt.*;
+
+import java.awt.BorderLayout;
+
+import javax.swing.JFrame;
 
 public class GMainFrame extends JFrame {
-    //attribute , 속성입니다~
-    private int size;
-
-    // 부품입니다~
+    // components
     private GMenuBar menuBar;
-    private GToolBar toolBar;
+    private GShapeToolBar toolBar;
     private GDrawingPanel drawingPanel;
+    // associations
+    // ...
 
-    //친구요? association
-    //private GDirectory directory;
-
-    //생성자
     public GMainFrame() {
-        //set attributes
-        //title
-        super("GMainFrame");
-        //size
-        this.setSize(800, 600);
-        //close function
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // attributes
+        this.setLocation(200, 200);
+        this.setSize(600, 400);
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        this.setLayout(new BorderLayout());
-
-        // create aggregation
+        // components
         this.menuBar = new GMenuBar();
         this.setJMenuBar(menuBar);
 
-        this.toolBar = new GToolBar();
-        this.add(toolBar);
-        this.add(this.toolBar, BorderLayout.NORTH);
+        this.setLayout(new BorderLayout());
+
+        this.toolBar = new GShapeToolBar();
+        this.add(toolBar, BorderLayout.NORTH);
 
         this.drawingPanel = new GDrawingPanel();
-        this.add(drawingPanel);
-        this.add(this.drawingPanel, BorderLayout.CENTER);
+        this.add(drawingPanel, BorderLayout.CENTER);
     }
-    //member function
 }
