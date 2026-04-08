@@ -7,6 +7,17 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 
 public class GDrawingPanel extends JPanel {
+    //private // eDrawingState;
+
+    private enum EDrawingState {
+        eIdle,
+        eDrawing,
+        eMoving,
+        eResizeing,
+        eShearing
+    }
+    private EDrawingState eDrawingState = EDrawingState.eIdle;
+
     // constructors
     public GDrawingPanel() {
         this.setBackground(Color.WHITE);
@@ -57,30 +68,62 @@ public class GDrawingPanel extends JPanel {
         }
     }
 
+    //상태 변수들
+
+
     private class MouseHandler implements MouseListener, MouseMotionListener {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-//			if (e.getClickCount() == 1) {
-//				startRectangularShape(e.getX(), e.getY());
-//			} else if (e.getClickCount() == 2) {
-//				finishRectangularShape(e.getX(), e.getY());
-//			}
+//			if(e.getButton() == 1) {
+//                if (e.getClickCount() == 1) {
+//                    //
+//                } else if (e.getClickCount() == 2) {
+//                    //
+//                }
+//            }
+
+//            if (e.getClickCount() == 1) {
+//                startRectangularShape(e.getX(), e.getY());
+//            } else if (e.getClickCount() == 2) {
+//                finishRectangularShape(e.getX(), e.getY());
+//            }
+
         }
+
+
+
+
         @Override
         public void mousePressed(MouseEvent e) {
-            startRectangularShape(e.getX(), e.getY());
+            if (eDrawingState == EDrawingState.eIdle) {
+                eDrawingState = EDrawingState.eDrawing;
+                startRectangularShape(e.getX(), e.getY());
+            }
+
         }
         @Override
         public void mouseDragged(MouseEvent e) {
-            finishRectangularShape(e.getX(), e.getY());
+            if (eDrawingState == EDrawingState.eDrawing) {
+                //
+                finishRectangularShape(e.getX(), e.getY());
+            }
+
         }
         @Override
         public void mouseReleased(MouseEvent e) {
-            finishRectangularShape(e.getX(), e.getY());
+            if (eDrawingState == EDrawingState.eDrawing) {
+                eDrawingState = EDrawingState.eIdle;
+            }
+
         }
         @Override
         public void mouseMoved(MouseEvent e) {
+//            private void mouseButtton1Clocked (HouseEvent e){
+//                if (!isDrawing) {
+//                    startRectangularShape(e.getX(), e.getY());
+//                }
+//            }
         }
 
         @Override
@@ -92,3 +135,30 @@ public class GDrawingPanel extends JPanel {
 
     }
 }
+
+/*
+public class GShape {
+     private int x0, y0, x1, y1;
+
+     public GShape (int x0, int y0, int x1, int y1) {
+         this.x0 = x0;
+         this.y0 = y0;
+         this.x1 = x1;
+         this.y1 = y1;
+     }
+
+     public void draw(Graphics g) {
+         g.setColor(Color.BLACK);
+         g.drawRect(x0, y0, x1 - x0, y1 - y0);
+     }
+
+     public void setLocation0(int x, int y) {
+         this.x0 = x;
+         this.y0 = y;
+     }
+     public void setLocation1(int x, int y) {
+         this.x1 = x;
+         this.y1 = y;
+     }
+}
+*/
