@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.Vector;
 
 public class GDrawingPanel extends JPanel {
+
     private enum EDrawingState {
         eIdle,
         eDrawing,
@@ -47,6 +48,7 @@ public class GDrawingPanel extends JPanel {
     private void startRectangularShape(int x, int y) {
         this.currentShape = new GShape(x, y, x, y);
 
+        //그릴공간이없다면 리턴
         if (this.getWidth() <= 0 || this.getHeight() <= 0) {
             return;
         }
@@ -80,6 +82,7 @@ public class GDrawingPanel extends JPanel {
             panelGraphics.dispose();
         }
     }
+
     private void addShape() {
         this.shapes.add(this.currentShape);
     }
