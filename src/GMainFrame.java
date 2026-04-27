@@ -1,5 +1,7 @@
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 
@@ -28,5 +30,12 @@ public class GMainFrame extends JFrame {
 
         this.drawingPanel = new GDrawingPanel();
         this.add(drawingPanel, BorderLayout.CENTER);
+    }
+
+    private class TooButtonActionHandler implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+        }
     }
 }
