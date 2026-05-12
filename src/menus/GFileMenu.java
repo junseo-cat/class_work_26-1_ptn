@@ -1,3 +1,5 @@
+package menus;
+
 import javax.swing.*;
 
 public class GFileMenu extends JMenu {

@@ -1,3 +1,6 @@
+package frames;
+
+import menus.GFileMenu;
 
 import javax.swing.*;
 

@@ -1,3 +1,4 @@
+package frames;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -30,6 +31,8 @@ public class GMainFrame extends JFrame {
 
         this.drawingPanel = new GDrawingPanel();
         this.add(drawingPanel, BorderLayout.CENTER);
+
+        this.drawingPanel.associateWith(this.toolBar);
     }
 
     private class TooButtonActionHandler implements ActionListener {

@@ -1,3 +1,4 @@
+import frames.GMainFrame;
 
 public class GMain {
 
