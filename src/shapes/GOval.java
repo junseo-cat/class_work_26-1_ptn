@@ -9,10 +9,20 @@ public class GOval extends GShape{
         this.shape = new Ellipse2D.Double();
     }
 
-    public void draw(Graphics2D g) {
-        Graphics2D g2D = (Graphics2D) g.create();
-        g2D.setColor(Color.BLACK);
-        g2D.drawOval(x0, y0, x1 - x0, y1 - y0);
+
+    public void setLocation0(int x, int y) {
+        Ellipse2D r = (Ellipse2D) shape;
+        r.setFrame(x, y, 0,0);
+    }
+    public void setLocation1(int x, int y) {
+        Ellipse2D r = (Ellipse2D) shape;
+        double w = x - r.getX();
+        double h = y - r.getY();
+        r.setFrame(r.getX(), r.getY(), 0,0);
+    }
+    public void translate(int dx, int dy) {
+        Ellipse2D r = (Ellipse2D) shape;
+        r.setFrame(r.getX() + dx, r.getY() + dy, r.getWidth(), r.getHeight());
     }
 
 }

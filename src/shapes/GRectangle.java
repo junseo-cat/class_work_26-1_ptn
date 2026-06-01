@@ -8,9 +8,19 @@ public class GRectangle extends GShape{
         this.shape = new Rectangle();
     }
 
-    public void draw(Graphics2D g) {
-        g.setColor(Color.BLACK);
-        g.drawRect(x0, y0, x1 - x0, y1 - y0);
-    }
 
+    public void setLocation0(int x, int y) {
+        Rectangle r = (Rectangle) shape;
+        r.setFrame(x, y, 0,0);
+    }
+    public void setLocation1(int x, int y) {
+        Rectangle r = (Rectangle) shape;
+        int w = x - r.x;
+        int h = y - r.y;
+        r.setFrame(r.x, r.y, 0,0);
+    }
+    public void translate(int dx, int dy) {
+        Rectangle r = (Rectangle) shape;
+        r.setFrame(r.x + dx, r.y + dy, r.width, r.height);
+    }
 }

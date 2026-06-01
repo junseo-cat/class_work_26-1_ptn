@@ -4,19 +4,27 @@ import shapes.GShape;
 
 import java.awt.*;
 
-public class GDrawer extends GTransformer {
-    public GDrawer(GShape shape) {
+public class GTranslator extends  GTransformer{
+    private  int x0;
+    private  int y0;
+
+    public GTranslator(GShape shape) {
         super(shape);
     }
 
     @Override
     public void start(int x, int y) {
-        this.shape.setLocation0(x, y);
+        this.x0 = x;
+        this.y0 = y;
     }
 
     @Override
     public void keep(int x, int y) {
-        this.shape.setLocation1(x, y);
+        int dx = x-x0;
+        int dy = y-y0;
+        shape.translate(dx, dy);
+        this.x0 = x;
+        this.y0 = y;
     }
 
     @Override
@@ -26,6 +34,6 @@ public class GDrawer extends GTransformer {
 
     @Override
     public void cont(int x, int y) {
-        //super.cont(x, y);
+        super.cont(x, y);
     }
 }
