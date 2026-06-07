@@ -102,15 +102,17 @@ public abstract class GShape implements Cloneable{
         public void setPosition(Rectangle br) {
             int brw = br.width;
             int brh = br.height;
-            this.anchors[EAnchor.eNW.ordinal()].setFrame(br.x, br.y - h, w, h);
-            this.anchors[EAnchor.eNN.ordinal()].setFrame(br.x, br.y - h, w, h);
-            this.anchors[EAnchor.eNE.ordinal()].setFrame(br.x, br.y - h, w, h);
-            this.anchors[EAnchor.eEE.ordinal()].setFrame(br.x, br.y - h, w, h);
-            this.anchors[EAnchor.eSE.ordinal()].setFrame(br.x + brw, br.y + brh - h, w, h);
-            this.anchors[EAnchor.eSS.ordinal()].setFrame(br.x, br.y - h, w, h);
-            this.anchors[EAnchor.eSW.ordinal()].setFrame(br.x, br.y - h, w, h);
-            this.anchors[EAnchor.eWW.ordinal()].setFrame(br.x, br.y - h, w, h);
-            this.anchors[EAnchor.eRotate.ordinal()].setFrame(br.x, br.y - h, w, h);
+            int brx = br.x - this.w/2;
+            int bry = br.y - this.h/2;
+            this.anchors[EAnchor.eNW.ordinal()].setFrame(brx, bry, w, h);
+            this.anchors[EAnchor.eNN.ordinal()].setFrame(brx + brw/2, bry, w, h);
+            this.anchors[EAnchor.eNE.ordinal()].setFrame(brx +brw, bry, w, h);
+            this.anchors[EAnchor.eEE.ordinal()].setFrame(brx +brw, bry + brh/2, w, h);
+            this.anchors[EAnchor.eSE.ordinal()].setFrame(brx + brw, bry + brh, w, h);
+            this.anchors[EAnchor.eSS.ordinal()].setFrame(brx + brw/2, bry + brh, w, h);
+            this.anchors[EAnchor.eSW.ordinal()].setFrame(brx, bry + brh, w, h);
+            this.anchors[EAnchor.eWW.ordinal()].setFrame(brx, bry + brh/2, w, h);
+            this.anchors[EAnchor.eRotate.ordinal()].setFrame(brx + brw/2, bry - h*3, w, h);
         }
 
         public void draw (Graphics2D g) {
