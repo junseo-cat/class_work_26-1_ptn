@@ -59,7 +59,7 @@ public abstract class GShape implements Cloneable{
         }
         if (eAnchor == null) {
             if (this.shape.contains(x, y)) {
-                return EAnchor.eMove;
+                eAnchor = EAnchor.eMove;
             }
         }
         return eAnchor;
@@ -85,13 +85,13 @@ public abstract class GShape implements Cloneable{
 
         public Anchors() {
             anchors = new Ellipse2D[EAnchor.values().length-1];
-            for (int i = 0; i < anchors.length-1; i++) {
+            for (int i = 0; i < anchors.length; i++) {
                 this.anchors[i] = new Ellipse2D.Float();
             }
         }
 
         public EAnchor onShape(int x, int y) {
-            for (int i = 0; i < anchors.length-1; i++) {
+            for (int i = 0; i < anchors.length; i++) {
                 if (this.anchors[i].contains(x, y)) {
                     return EAnchor.values()[i];
                 }
@@ -114,7 +114,7 @@ public abstract class GShape implements Cloneable{
         }
 
         public void draw (Graphics2D g) {
-            for (int i = 0; i < anchors.length-1; i++) {
+            for (int i = 0; i < anchors.length; i++) {
                 g.draw(anchors[i]);
             }
         }
