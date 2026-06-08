@@ -80,7 +80,12 @@ public class GDrawingPanel extends JPanel {
         if (toolBar.getShapeType() == GConstants.EShapeType.eSelect) { // context
             for (GShape shape : shapes) {
                 GShape.EAnchor eAnchor = shape.onShape(x, y);
+
                 if (eAnchor != null) {
+                    for (GShape s : shapes) {
+                        s.setSelected(false);
+                    }
+                    shape.setSelected(true);
 
                     if (eAnchor == GShape.EAnchor.eRotate) {
                         this.transformer = new GDrawer(shape);
@@ -95,16 +100,32 @@ public class GDrawingPanel extends JPanel {
             }
         }else {
             GShape currentShape = toolBar.getShapeType().getShape();
+
+            for (GShape shape : shapes) {
+                shape.setSelected(false);
+            }
+
             shapes.add(currentShape);
 
             this.transformer = new GDrawer(currentShape);
             this.transformer.start(x,y);
 
+            currentShape.setSelected(true);
         }
         this.prepareDrawing();
     }
 
     private void keepTransform(int x, int y) {
+        if (this.transformer == null) {
+            return;
+        }
+        if (this.bufferImage == null) {
+            this.prepareDrawing();
+        }
+        if (this.bufferImage == null) {
+            return;
+        }
+
         Graphics2D bufferGraphics = bufferImage.createGraphics();
         bufferGraphics.setColor(getBackground());
         bufferGraphics.fillRect(0, 0, getWidth(), getHeight());
@@ -126,6 +147,7 @@ public class GDrawingPanel extends JPanel {
         for (GShape shape : shapes) {
             if (shape != null) {
                 shape.draw(bufferGraphics);
+
             }
         }
         bufferGraphics.dispose();
@@ -137,8 +159,10 @@ public class GDrawingPanel extends JPanel {
     }
 
     private void finishTransform(int x, int y) {
-        this.transformer.finish(x,y);
-        this.transformer = null;
+        if (this.transformer != null) {
+            this.transformer.finish(x, y);
+            this.transformer = null;
+        }
     }
 
     private class MouseHandler implements MouseListener, MouseMotionListener {

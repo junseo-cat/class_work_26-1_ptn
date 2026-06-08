@@ -66,10 +66,12 @@ public abstract class GShape implements Cloneable{
     }
 
     public void draw(Graphics2D g) {
+        g.draw(shape);
+
         if (this.isSelected) {
+            this.anchors.setPosition(this.shape.getBounds());
             this.anchors.draw(g);
         }
-        g.draw(shape);
     }
 
     public void setLocation0(int x, int y) {}
