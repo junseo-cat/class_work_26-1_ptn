@@ -3,6 +3,7 @@ package transformer;
 import shapes.GShape;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 
 public class GTranslator extends  GTransformer{
     private  int x0;
@@ -22,7 +23,8 @@ public class GTranslator extends  GTransformer{
     public void keep(int x, int y) {
         int dx = x-x0;
         int dy = y-y0;
-        shape.translate(dx, dy);
+        AffineTransform translateTransform = AffineTransform.getTranslateInstance(dx, dy);
+        shape.getAffineTransform().preConcatenate(translateTransform);
         this.x0 = x;
         this.y0 = y;
     }

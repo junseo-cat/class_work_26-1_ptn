@@ -5,6 +5,8 @@ import shapes.GShape;
 import transformer.GDrawer;
 import transformer.GTransformer;
 import transformer.GTranslator;
+import transformer.GScale;
+import transformer.GRotate;
 
 import javax.swing.*;
 import java.awt.*;
@@ -88,11 +90,11 @@ public class GDrawingPanel extends JPanel {
                     shape.setSelected(true);
 
                     if (eAnchor == GShape.EAnchor.eRotate) {
-                        this.transformer = new GDrawer(shape);
+                        this.transformer = new GRotate(shape);
                     } else if (eAnchor == GShape.EAnchor.eMove) {
                         this.transformer = new GTranslator(shape);
                     } else { // resize
-                        this.transformer = new GDrawer(shape);
+                        this.transformer = new GScale(shape, eAnchor);
                     }
                     this.transformer.start(x,y);
                     break;

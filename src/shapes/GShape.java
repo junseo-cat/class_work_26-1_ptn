@@ -5,6 +5,10 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.RectangularShape;
 import java.lang.reflect.InvocationTargetException;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
+
 public abstract class GShape implements Cloneable{
 
     public enum EAnchor {
@@ -22,19 +26,27 @@ public abstract class GShape implements Cloneable{
     }
     private boolean isSelected;
 
+    protected AffineTransform affineTransform;
+
     protected Shape shape;
     private  Anchors anchors;
+
 
 
     public GShape() {
         this.isSelected = false;
         this.anchors = new Anchors();
+
+        this.affineTransform = new AffineTransform();
+
     }
 
     public GShape clone() {
         try {
             GShape cloned = (GShape) super.clone();
             cloned.shape = (Shape) (((RectangularShape) this.shape).clone());
+            cloned.affineTransform = (AffineTransform) this.affineTransform.clone();
+            cloned.anchors = new Anchors();
             return cloned;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
@@ -42,13 +54,27 @@ public abstract class GShape implements Cloneable{
     }
 
     //getter setter
+    public AffineTransform getAffineTransform() {
+        return this.affineTransform;
+    }
+    public Shape getShape() {
+        return this.shape;
+    }
+    public Shape getTransformedShape() {
+        return this.affineTransform.createTransformedShape(this.shape);
+    }
+    public Rectangle getTransformedBounds() {
+        return this.getTransformedShape().getBounds();
+    }
+
     public boolean isSelected() {
         return isSelected;
     }
     public void setSelected(boolean isSelected) {
         this.isSelected = isSelected;
         if (isSelected) {
-            this.anchors.setPosition(this.shape.getBounds());
+            this.anchors.setPosition(this.shape, this.affineTransform);
+            //this.anchors.setPosition(this.getTransformedBounds());
         }
     }
 
@@ -58,18 +84,29 @@ public abstract class GShape implements Cloneable{
             eAnchor = this.anchors.onShape(x, y);
         }
         if (eAnchor == null) {
-            if (this.shape.contains(x, y)) {
-                eAnchor = EAnchor.eMove;
+            try {
+                AffineTransform inverseTransform = this.affineTransform.createInverse();
+
+                Point2D mousePoint = new Point2D.Double(x, y);
+                Point2D transformedMousePoint = inverseTransform.transform(mousePoint, null);
+
+                if (this.shape.contains(transformedMousePoint)) {
+                    eAnchor = EAnchor.eMove;
+                }
+            } catch (NoninvertibleTransformException e) {
+                e.printStackTrace();
             }
         }
         return eAnchor;
     }
 
     public void draw(Graphics2D g) {
-        g.draw(shape);
+        Shape transformedShape = this.affineTransform.createTransformedShape(this.shape);
+        g.draw(transformedShape);
 
         if (this.isSelected) {
-            this.anchors.setPosition(this.shape.getBounds());
+            //this.anchors.setPosition(this.shape, this.affineTransform);
+            this.anchors.setPosition(this.shape, this.affineTransform);
             this.anchors.draw(g);
         }
     }
@@ -101,20 +138,50 @@ public abstract class GShape implements Cloneable{
             return null;
         }
 
-        public void setPosition(Rectangle br) {
-            int brw = br.width;
-            int brh = br.height;
-            int brx = br.x - this.w/2;
-            int bry = br.y - this.h/2;
-            this.anchors[EAnchor.eNW.ordinal()].setFrame(brx, bry, w, h);
-            this.anchors[EAnchor.eNN.ordinal()].setFrame(brx + brw/2, bry, w, h);
-            this.anchors[EAnchor.eNE.ordinal()].setFrame(brx +brw, bry, w, h);
-            this.anchors[EAnchor.eEE.ordinal()].setFrame(brx +brw, bry + brh/2, w, h);
-            this.anchors[EAnchor.eSE.ordinal()].setFrame(brx + brw, bry + brh, w, h);
-            this.anchors[EAnchor.eSS.ordinal()].setFrame(brx + brw/2, bry + brh, w, h);
-            this.anchors[EAnchor.eSW.ordinal()].setFrame(brx, bry + brh, w, h);
-            this.anchors[EAnchor.eWW.ordinal()].setFrame(brx, bry + brh/2, w, h);
-            this.anchors[EAnchor.eRotate.ordinal()].setFrame(brx + brw/2, bry - h*3, w, h);
+//        public void setPosition(Rectangle br) {
+//            int brw = br.width;
+//            int brh = br.height;
+//            int brx = br.x - this.w/2;
+//            int bry = br.y - this.h/2;
+//            this.anchors[EAnchor.eNW.ordinal()].setFrame(brx, bry, w, h);
+//            this.anchors[EAnchor.eNN.ordinal()].setFrame(brx + brw/2, bry, w, h);
+//            this.anchors[EAnchor.eNE.ordinal()].setFrame(brx +brw, bry, w, h);
+//            this.anchors[EAnchor.eEE.ordinal()].setFrame(brx +brw, bry + brh/2, w, h);
+//            this.anchors[EAnchor.eSE.ordinal()].setFrame(brx + brw, bry + brh, w, h);
+//            this.anchors[EAnchor.eSS.ordinal()].setFrame(brx + brw/2, bry + brh, w, h);
+//            this.anchors[EAnchor.eSW.ordinal()].setFrame(brx, bry + brh, w, h);
+//            this.anchors[EAnchor.eWW.ordinal()].setFrame(brx, bry + brh/2, w, h);
+//            this.anchors[EAnchor.eRotate.ordinal()].setFrame(brx + brw/2, bry - h*3, w, h);
+//        }
+        public void setPosition(Shape shape, AffineTransform affineTransform) {
+            Rectangle br = shape.getBounds();
+
+            double x = br.getX();
+            double y = br.getY();
+            double brw = br.getWidth();
+            double brh = br.getHeight();
+
+            setAnchor(EAnchor.eNW, x, y, affineTransform);
+            setAnchor(EAnchor.eNN, x + brw / 2, y, affineTransform);
+            setAnchor(EAnchor.eNE, x + brw, y, affineTransform);
+            setAnchor(EAnchor.eEE, x + brw, y + brh / 2, affineTransform);
+            setAnchor(EAnchor.eSE, x + brw, y + brh, affineTransform);
+            setAnchor(EAnchor.eSS, x + brw / 2, y + brh, affineTransform);
+            setAnchor(EAnchor.eSW, x, y + brh, affineTransform);
+            setAnchor(EAnchor.eWW, x, y + brh / 2, affineTransform);
+
+            setAnchor(EAnchor.eRotate, x + brw / 2, y - this.h * 3, affineTransform);
+        }
+        private void setAnchor(EAnchor eAnchor, double x, double y, AffineTransform affineTransform) {
+            Point2D src = new Point2D.Double(x, y);
+            Point2D dst = affineTransform.transform(src, null);
+
+            this.anchors[eAnchor.ordinal()].setFrame(
+                    dst.getX() - this.w / 2.0,
+                    dst.getY() - this.h / 2.0,
+                    this.w,
+                    this.h
+            );
         }
 
         public void draw (Graphics2D g) {
