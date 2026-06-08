@@ -4,6 +4,8 @@ import shapes.GOval;
 import shapes.GRectangle;
 import shapes.GShape;
 
+import shapes.GPolygon;
+
 public class GConstants {
     public enum EDrawingType {
         e2Point,
@@ -15,7 +17,7 @@ public class GConstants {
         eRectangle("네모", new GRectangle(), EDrawingType.e2Point),
         eOval("동그라미", new GOval(), EDrawingType.e2Point),
         eLine("라인", new GRectangle(), EDrawingType.e2Point),
-        ePolygon("폴리곤", new GRectangle(), EDrawingType.eNPoint);
+        ePolygon("폴리곤", new GPolygon(), EDrawingType.eNPoint);
 
         private final String name;
         private final GShape shape;

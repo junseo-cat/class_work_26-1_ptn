@@ -10,7 +10,7 @@ public abstract class GTransformer {
         this.shape = shape;
     }
 
-    GShape getShape() {
+    public GShape getShape() {
         return this.shape;
     }
 

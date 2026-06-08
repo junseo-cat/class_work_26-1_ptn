@@ -9,6 +9,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 
+import java.awt.geom.Path2D;
+
 public abstract class GShape implements Cloneable{
 
     public enum EAnchor {
@@ -44,7 +46,15 @@ public abstract class GShape implements Cloneable{
     public GShape clone() {
         try {
             GShape cloned = (GShape) super.clone();
-            cloned.shape = (Shape) (((RectangularShape) this.shape).clone());
+
+            if (this.shape instanceof RectangularShape) {
+                cloned.shape = (Shape) (((RectangularShape) this.shape).clone());
+            } else if (this.shape instanceof Path2D) {
+                cloned.shape = (Shape) ((Path2D) this.shape).clone();
+            } else {
+                cloned.shape = this.shape;
+            }
+
             cloned.affineTransform = (AffineTransform) this.affineTransform.clone();
             cloned.anchors = new Anchors();
             return cloned;
@@ -115,6 +125,11 @@ public abstract class GShape implements Cloneable{
     public void setLocation1(int x, int y) {}
     public void translate(int dx, int dy) {}
 
+    public void addPoint(int x, int y) {}
+    public boolean isNearFirstPoint(int x, int y) {
+        return false;
+    }
+    public void closeShape() {}
 
     private static class Anchors {
         public  int w = 15;

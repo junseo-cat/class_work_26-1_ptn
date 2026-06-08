@@ -26,7 +26,7 @@ public class GDrawingPanel extends JPanel {
     private GShapeToolBar toolBar;
     //attributes
     private EDrawingState eDrawingState;
-
+    private Color bgColor;
 
     //components
     private BufferedImage bufferImage;
@@ -36,7 +36,7 @@ public class GDrawingPanel extends JPanel {
     // constructors
     public GDrawingPanel() {
         // attributes
-        setBackground(Color.WHITE);
+        setBackground(bgColor = Color.WHITE);
         eDrawingState = EDrawingState.eIdle;
         // components list
         shapes = new Vector<GShape>();
@@ -78,16 +78,49 @@ public class GDrawingPanel extends JPanel {
         }
     }
 
+    private void redraw() {
+        if (this.bufferImage == null
+                || this.bufferImage.getWidth() != getWidth()
+                || this.bufferImage.getHeight() != getHeight()) {
+            this.prepareDrawing();
+        }
+
+        if (this.bufferImage == null) {
+            return;
+        }
+
+        Graphics2D bufferGraphics = bufferImage.createGraphics();
+        bufferGraphics.setColor(getBackground());
+        bufferGraphics.fillRect(0, 0, getWidth(), getHeight());
+        bufferGraphics.setColor(getForeground());
+
+        for (GShape shape : shapes) {
+            if (shape != null) {
+                shape.draw(bufferGraphics);
+            }
+        }
+
+        bufferGraphics.dispose();
+        repaint();
+    }
+
+    private void clearSelection() {
+        for (GShape s : shapes) {
+            s.setSelected(false);
+        }
+    }
+
     private void startTransform(int x, int y) {
         if (toolBar.getShapeType() == GConstants.EShapeType.eSelect) { // context
+            //startSelectedTransform
             for (GShape shape : shapes) {
                 GShape.EAnchor eAnchor = shape.onShape(x, y);
 
                 if (eAnchor != null) {
-                    for (GShape s : shapes) {
-                        s.setSelected(false);
-                    }
+                    clearSelection();
                     shape.setSelected(true);
+
+                    this.redraw();
 
                     if (eAnchor == GShape.EAnchor.eRotate) {
                         this.transformer = new GRotate(shape);
@@ -100,19 +133,41 @@ public class GDrawingPanel extends JPanel {
                     break;
                 }
             }
-        }else {
+        }else if (toolBar.getShapeType().getDrawingType() == GConstants.EDrawingType.e2Point) {
+            //start2PointDrawing
             GShape currentShape = toolBar.getShapeType().getShape();
 
-            for (GShape shape : shapes) {
-                shape.setSelected(false);
-            }
+            clearSelection();
 
             shapes.add(currentShape);
 
-            this.transformer = new GDrawer(currentShape);
-            this.transformer.start(x,y);
+            transformer = new GDrawer(currentShape);
+            transformer.start(x, y);
 
             currentShape.setSelected(true);
+            redraw();
+        } else if (toolBar.getShapeType().getDrawingType() == GConstants.EDrawingType.eNPoint) {
+            //startNPointDrawing
+            if (transformer == null) {
+                // 첫 점
+                GShape currentShape = toolBar.getShapeType().getShape();
+
+                clearSelection();
+                shapes.add(currentShape);
+
+                transformer = new GDrawer(currentShape);
+                transformer.start(x, y);
+
+                currentShape.setSelected(true);
+                redraw();
+            } else {
+                // 두 번째 점부터
+                transformer.cont(x, y);
+
+                // 만약 처음 점 근처라면
+                // finishTransform(x, y);
+                // eDrawingState = eIdle;
+            }
         }
         this.prepareDrawing();
     }
@@ -121,39 +176,9 @@ public class GDrawingPanel extends JPanel {
         if (this.transformer == null) {
             return;
         }
-        if (this.bufferImage == null) {
-            this.prepareDrawing();
-        }
-        if (this.bufferImage == null) {
-            return;
-        }
 
-        Graphics2D bufferGraphics = bufferImage.createGraphics();
-        bufferGraphics.setColor(getBackground());
-        bufferGraphics.fillRect(0, 0, getWidth(), getHeight());
-        bufferGraphics.setColor(getForeground());
-
-        this.transformer.keep(x,y);
-
-//        if (eDrawingState == EDrawingState.eDrawing) {
-//            currentShape.setLocation1(x, y);
-//            currentShape.draw(bufferGraphics);
-//        } else if (eDrawingState == EDrawingState.eMoving) {
-//            currentShape.move(x, y);
-//        } else if (eDrawingState == EDrawingState.eResizing) {
-//            currentShape.resize(x, y);
-//        } else if (eDrawingState == EDrawingState.eRotating) {
-//            currentShape.rotate(x, y);
-//        }
-
-        for (GShape shape : shapes) {
-            if (shape != null) {
-                shape.draw(bufferGraphics);
-
-            }
-        }
-        bufferGraphics.dispose();
-        repaint();
+        this.transformer.keep(x, y);
+        this.redraw();
     }
 
     private void continueDrawing(int x, int y) {

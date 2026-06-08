@@ -26,6 +26,6 @@ public class GDrawer extends GTransformer {
 
     @Override
     public void cont(int x, int y) {
-        //super.cont(x, y);
+        this.shape.addPoint(x, y);
     }
 }
