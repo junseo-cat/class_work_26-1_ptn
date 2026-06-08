@@ -3,6 +3,7 @@ package transformer;
 import shapes.GShape;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 
 public class GRotate extends GTransformer {
     private Point localCenter;
@@ -56,9 +57,12 @@ public class GRotate extends GTransformer {
         double currentAngle = Math.atan2(y - screenCenter.y, x - screenCenter.x);
         double dAngle = currentAngle - this.startAngle;
 
-        shape.getAffineTransform().rotate(dAngle, localCenter.x, localCenter.y);
+        AffineTransform rotateTransform =
+                AffineTransform.getRotateInstance(dAngle, screenCenter.x, screenCenter.y);
 
-        shape.getAffineTransform().transform(this.localCenter, this.screenCenter);
+        shape.getAffineTransform().preConcatenate(rotateTransform);
+
+        //shape.getAffineTransform().transform(this.localCenter, this.screenCenter);
 
         this.startAngle = currentAngle;
     }
