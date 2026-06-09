@@ -38,6 +38,7 @@ public class GMainFrame extends JFrame {
 
         this.drawingPanel.associateWith(this.toolBar);
         this.attributePanel.associateWith(this.drawingPanel);
+        this.drawingPanel.associateWith(this.attributePanel);
     }
 
     private class TooButtonActionHandler implements ActionListener {

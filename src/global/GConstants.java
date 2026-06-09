@@ -17,7 +17,7 @@ public class GConstants {
         eVertexSelect("엣지 선택도구", new GRectangle(), EDrawingType.e2Point),
         eRectangle("네모", new GRectangle(), EDrawingType.e2Point),
         eOval("동그라미", new GOval(), EDrawingType.e2Point),
-        eLine("라인", new GRectangle(), EDrawingType.e2Point),
+        //eLine("라인", new GRectangle(), EDrawingType.e2Point),
         ePolygon("폴리곤", new GPolygon(), EDrawingType.eNPoint);
 
         private final String name;

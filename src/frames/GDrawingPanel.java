@@ -25,6 +25,7 @@ public class GDrawingPanel extends JPanel {
     }
     //associations
     private GShapeToolBar toolBar;
+    private GAttributePanel attributePanel;
     //attributes
     private EDrawingState eDrawingState;
     private Color bgColor;
@@ -52,6 +53,9 @@ public class GDrawingPanel extends JPanel {
     // setters and getters
     public void associateWith(GShapeToolBar toolBar) {
         this.toolBar = toolBar;
+    }
+    public void associateWith(GAttributePanel attributePanel) {
+        this.attributePanel = attributePanel;
     }
 
     // methods
@@ -134,12 +138,21 @@ public class GDrawingPanel extends JPanel {
             startVertexTransform(x, y);
         } else if (toolBar.getShapeType() == GConstants.EShapeType.eSelect) { // context
             //startSelectedTransform
-            for (GShape shape : shapes) {
+            boolean found = false;
+
+            for (int i = shapes.size() - 1; i >= 0; i--) {
+                GShape shape = shapes.get(i); //뒤에서부터 찾기 나중만들어진대로
+
                 GShape.EAnchor eAnchor = shape.onShape(x, y);
 
                 if (eAnchor != null) {
+                    found = true;
+
                     clearSelection();
                     shape.setSelected(true);
+                    if (this.attributePanel != null) {
+                        this.attributePanel.showShapeMode();
+                    }
 
                     this.redraw();
 
@@ -152,6 +165,16 @@ public class GDrawingPanel extends JPanel {
                     }
                     this.transformer.start(x,y);
                     break;
+                }
+                if (!found) {
+                    clearSelection();
+                    transformer = null;
+
+                    if (this.attributePanel != null) {
+                        this.attributePanel.showBackgroundMode();
+                    }
+
+                    redraw();
                 }
             }
         }else if (toolBar.getShapeType().getDrawingType() == GConstants.EDrawingType.e2Point) {
@@ -231,6 +254,9 @@ public class GDrawingPanel extends JPanel {
             currentShape.closeShape();
             //currentShape.setSelected(true);
 
+            if (this.attributePanel != null) {
+                this.attributePanel.showShapeMode();
+            }
             this.finishTransform(x, y);
             this.eDrawingState = EDrawingState.eIdle;
 
