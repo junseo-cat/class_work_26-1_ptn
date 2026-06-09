@@ -5,10 +5,14 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
+import java.awt.geom.Rectangle2D;
+
 public class GPolygon extends GShape {
     private Vector<Point2D> points;
     private Point2D movingPoint;
     private boolean closed;
+
+    private static final int VERTEX_ANCHOR_SIZE = 10;
 
     public GPolygon() {
         this.points = new Vector<Point2D>();
@@ -122,4 +126,69 @@ public class GPolygon extends GShape {
         return cloned;
     }
 
+    @Override
+    public int onVertex(int x, int y) {
+        if (!this.closed) {
+            return -1;
+        }
+
+        try {
+            Point2D mousePoint = new Point2D.Double(x, y);
+            Point2D localPoint = this.affineTransform.createInverse().transform(mousePoint, null);
+
+            for (int i = 0; i < this.points.size(); i++) {
+                Point2D p = this.points.get(i);
+
+                double dx = localPoint.getX() - p.getX();
+                double dy = localPoint.getY() - p.getY();
+                double distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance <= VERTEX_ANCHOR_SIZE) {
+                    return i;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
+
+    @Override
+    public void moveVertex(int index, int x, int y) {
+        if (index < 0 || index >= this.points.size()) {
+            return;
+        }
+
+        try {
+            Point2D mousePoint = new Point2D.Double(x, y);
+            Point2D localPoint = this.affineTransform.createInverse().transform(mousePoint, null);
+
+            this.points.set(index, localPoint);
+            this.rebuildPath();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void drawVertexAnchors(Graphics2D g) {
+        if (!this.closed) {
+            return;
+        }
+
+        for (Point2D p : this.points) {
+            Point2D screenPoint = this.affineTransform.transform(p, null);
+
+            double x = screenPoint.getX() - VERTEX_ANCHOR_SIZE / 2.0;
+            double y = screenPoint.getY() - VERTEX_ANCHOR_SIZE / 2.0;
+
+            g.draw(new Rectangle.Double(
+                    x,
+                    y,
+                    VERTEX_ANCHOR_SIZE,
+                    VERTEX_ANCHOR_SIZE
+            ));
+        }
+    }
 }

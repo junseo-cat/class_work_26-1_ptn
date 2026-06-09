@@ -7,6 +7,7 @@ import transformer.GTransformer;
 import transformer.GTranslator;
 import transformer.GScale;
 import transformer.GRotate;
+import transformer.GVertexEditor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -97,6 +98,11 @@ public class GDrawingPanel extends JPanel {
         for (GShape shape : shapes) {
             if (shape != null) {
                 shape.draw(bufferGraphics);
+
+                if (toolBar != null
+                        && toolBar.getShapeType() == GConstants.EShapeType.eVertexSelect) {
+                    shape.drawVertexAnchors(bufferGraphics);
+                }
             }
         }
 
@@ -111,7 +117,11 @@ public class GDrawingPanel extends JPanel {
     }
 
     private void startTransform(int x, int y) {
-        if (toolBar.getShapeType() == GConstants.EShapeType.eSelect) { // context
+        if (toolBar.getShapeType() == GConstants.EShapeType.eVertexSelect) {
+            clearSelection();
+            redraw();
+            startVertexTransform(x, y);
+        } else if (toolBar.getShapeType() == GConstants.EShapeType.eSelect) { // context
             //startSelectedTransform
             for (GShape shape : shapes) {
                 GShape.EAnchor eAnchor = shape.onShape(x, y);
@@ -144,34 +154,52 @@ public class GDrawingPanel extends JPanel {
             transformer = new GDrawer(currentShape);
             transformer.start(x, y);
 
-            currentShape.setSelected(true);
+            //currentShape.setSelected(true);
             redraw();
         } else if (toolBar.getShapeType().getDrawingType() == GConstants.EDrawingType.eNPoint) {
-            //startNPointDrawing
-            if (transformer == null) {
-                // 첫 점
-                GShape currentShape = toolBar.getShapeType().getShape();
+            // startNPointDrawing: 첫 점만 담당
+            GShape currentShape = toolBar.getShapeType().getShape();
 
-                clearSelection();
-                shapes.add(currentShape);
+            clearSelection();
+            shapes.add(currentShape);
 
-                transformer = new GDrawer(currentShape);
-                transformer.start(x, y);
+            transformer = new GDrawer(currentShape);
+            transformer.start(x, y);
 
-                currentShape.setSelected(true);
-                redraw();
-            } else {
-                // 두 번째 점부터
-                transformer.cont(x, y);
+            currentShape.setSelected(false);
 
-                // 만약 처음 점 근처라면
-                // finishTransform(x, y);
-                // eDrawingState = eIdle;
-            }
+            redraw();
         }
         this.prepareDrawing();
     }
+    private void startVertexTransform(int x, int y) {
+        boolean found = false;
 
+        for (int i = shapes.size() - 1; i >= 0; i--) {
+            GShape shape = shapes.get(i);
+            int vertexIndex = shape.onVertex(x, y);
+
+            if (vertexIndex != -1) {
+                found = true;
+
+                clearSelection();
+                shape.setSelected(false);
+
+                this.transformer = new GVertexEditor(shape, vertexIndex);
+                this.transformer.start(x, y);
+
+                redraw();
+                break;
+            }
+        }
+
+        if (!found) {
+            this.transformer = null;
+            redraw();
+        }
+    }
+
+    //keepT
     private void keepTransform(int x, int y) {
         if (this.transformer == null) {
             return;
@@ -182,7 +210,24 @@ public class GDrawingPanel extends JPanel {
     }
 
     private void continueDrawing(int x, int y) {
+        if (this.transformer == null) {
+            return;
+        }
 
+        GShape currentShape = this.transformer.getShape();
+
+        if (currentShape.isNearFirstPoint(x, y)) {
+            currentShape.closeShape();
+            //currentShape.setSelected(true);
+
+            this.finishTransform(x, y);
+            this.eDrawingState = EDrawingState.eIdle;
+
+            this.redraw();
+        } else {
+            this.transformer.cont(x, y);
+            this.redraw();
+        }
     }
 
     private void finishTransform(int x, int y) {
@@ -226,10 +271,19 @@ public class GDrawingPanel extends JPanel {
         }
 
         private void mouseLButton2Clocked(MouseEvent e) {
-            if (toolBar.getShapeType().getDrawingType() == GConstants.EDrawingType.e2Point) {
-                if (eDrawingState == EDrawingState.eTransforming) {
+            if (eDrawingState == EDrawingState.eTransforming) {
+                if (toolBar.getShapeType().getDrawingType() == GConstants.EDrawingType.e2Point) {
                     finishTransform(e.getX(), e.getY());
                     eDrawingState = EDrawingState.eIdle;
+                } else if (toolBar.getShapeType().getDrawingType() == GConstants.EDrawingType.eNPoint) {
+                    if (transformer != null) {
+                        GShape currentShape = transformer.getShape();
+                        currentShape.closeShape();
+                        //currentShape.setSelected(true);
+                        finishTransform(e.getX(), e.getY());
+                        eDrawingState = EDrawingState.eIdle;
+                        redraw();
+                    }
                 }
             }
         }

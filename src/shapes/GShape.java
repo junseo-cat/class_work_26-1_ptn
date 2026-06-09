@@ -84,7 +84,6 @@ public abstract class GShape implements Cloneable{
         this.isSelected = isSelected;
         if (isSelected) {
             this.anchors.setPosition(this.shape, this.affineTransform);
-            //this.anchors.setPosition(this.getTransformedBounds());
         }
     }
 
@@ -130,6 +129,15 @@ public abstract class GShape implements Cloneable{
         return false;
     }
     public void closeShape() {}
+
+    public int onVertex(int x, int y) {
+        return -1;
+    }
+    public void moveVertex(int index, int x, int y) {
+    }
+    public void drawVertexAnchors(Graphics2D g) {
+    }
+
 
     private static class Anchors {
         public  int w = 15;
