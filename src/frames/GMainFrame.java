@@ -11,6 +11,7 @@ public class GMainFrame extends JFrame {
     private GMenuBar menuBar;
     private GShapeToolBar toolBar;
     private GDrawingPanel drawingPanel;
+    private GAttributePanel attributePanel;
     // associations
     // ...
 
@@ -32,7 +33,11 @@ public class GMainFrame extends JFrame {
         this.drawingPanel = new GDrawingPanel();
         this.add(drawingPanel, BorderLayout.CENTER);
 
+        this.attributePanel = new GAttributePanel();
+        this.add(attributePanel, BorderLayout.EAST);
+
         this.drawingPanel.associateWith(this.toolBar);
+        this.attributePanel.associateWith(this.drawingPanel);
     }
 
     private class TooButtonActionHandler implements ActionListener {

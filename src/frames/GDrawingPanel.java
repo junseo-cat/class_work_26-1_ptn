@@ -79,7 +79,7 @@ public class GDrawingPanel extends JPanel {
         }
     }
 
-    private void redraw() {
+    public void redraw() {
         if (this.bufferImage == null
                 || this.bufferImage.getWidth() != getWidth()
                 || this.bufferImage.getHeight() != getHeight()) {
@@ -115,6 +115,17 @@ public class GDrawingPanel extends JPanel {
             s.setSelected(false);
         }
     }
+
+    public GShape getSelectedShape() {
+        for (GShape shape : shapes) {
+            if (shape.isSelected()) {
+                return shape;
+            }
+        }
+        return null;
+    }
+
+    //-------------Transform
 
     private void startTransform(int x, int y) {
         if (toolBar.getShapeType() == GConstants.EShapeType.eVertexSelect) {

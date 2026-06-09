@@ -33,11 +33,19 @@ public abstract class GShape implements Cloneable{
     protected Shape shape;
     private  Anchors anchors;
 
-
+    private Color fillColor;
+    private Color lineColor;
+    private float strokeWidth;
+    private boolean filled;
 
     public GShape() {
         this.isSelected = false;
         this.anchors = new Anchors();
+
+        this.fillColor = Color.WHITE;
+        this.lineColor = Color.BLACK;
+        this.strokeWidth = 1.0f;
+        this.filled = false;
 
         this.affineTransform = new AffineTransform();
 
@@ -57,6 +65,12 @@ public abstract class GShape implements Cloneable{
 
             cloned.affineTransform = (AffineTransform) this.affineTransform.clone();
             cloned.anchors = new Anchors();
+
+            cloned.fillColor = this.fillColor;
+            cloned.lineColor = this.lineColor;
+            cloned.strokeWidth = this.strokeWidth;
+            cloned.filled = this.filled;
+
             return cloned;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
@@ -75,6 +89,33 @@ public abstract class GShape implements Cloneable{
     }
     public Rectangle getTransformedBounds() {
         return this.getTransformedShape().getBounds();
+    }
+
+    //(컬러)속성 게터세터
+    public Color getFillColor() {
+        return this.fillColor;
+    }
+    public void setFillColor(Color fillColor) {
+        this.fillColor = fillColor;
+        this.filled = true;
+    }
+    public Color getLineColor() {
+        return this.lineColor;
+    }
+    public void setLineColor(Color lineColor) {
+        this.lineColor = lineColor;
+    }
+    public float getStrokeWidth() {
+        return this.strokeWidth;
+    }
+    public void setStrokeWidth(float strokeWidth) {
+        this.strokeWidth = strokeWidth;
+    }
+    public boolean isFilled() {
+        return this.filled;
+    }
+    public void setFilled(boolean filled) {
+        this.filled = filled;
     }
 
     public boolean isSelected() {
@@ -111,10 +152,23 @@ public abstract class GShape implements Cloneable{
 
     public void draw(Graphics2D g) {
         Shape transformedShape = this.affineTransform.createTransformedShape(this.shape);
+
+        Color oldColor = g.getColor();
+        Stroke oldStroke = g.getStroke();
+
+        if (this.filled) {
+            g.setColor(this.fillColor);
+            g.fill(transformedShape);
+        }
+
+        g.setColor(this.lineColor);
+        g.setStroke(new BasicStroke(this.strokeWidth));
         g.draw(transformedShape);
 
+        g.setColor(oldColor);
+        g.setStroke(oldStroke);
+
         if (this.isSelected) {
-            //this.anchors.setPosition(this.shape, this.affineTransform);
             this.anchors.setPosition(this.shape, this.affineTransform);
             this.anchors.draw(g);
         }

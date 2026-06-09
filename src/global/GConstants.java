@@ -14,7 +14,7 @@ public class GConstants {
 
     public enum EShapeType {
         eSelect("선택", new GRectangle(), EDrawingType.e2Point),
-        eVertexSelect("엣지도구", new GRectangle(), EDrawingType.e2Point),
+        eVertexSelect("엣지 선택도구", new GRectangle(), EDrawingType.e2Point),
         eRectangle("네모", new GRectangle(), EDrawingType.e2Point),
         eOval("동그라미", new GOval(), EDrawingType.e2Point),
         eLine("라인", new GRectangle(), EDrawingType.e2Point),
